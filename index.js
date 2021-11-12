@@ -67,6 +67,17 @@ async function run() {
       res.json(result);
     });
 
+    // update product
+    app.patch('/update/:id', (req, res) => {
+      productCollection.updateOne({ _id: ObjectId(req.params.id) },
+        {
+          $set: { price: req.body.price, quantity: req.body.quantity }
+        })
+        .then(result => {
+          res.send(result.modifiedCount > 0)
+        })
+    })
+
     // delete data from cart delete api
     app.delete("/delete/:id", async (req, res) => {
       const id = req.params.id;
