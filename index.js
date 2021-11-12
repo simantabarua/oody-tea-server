@@ -13,7 +13,7 @@ app.get("/", (req, res) => {
   res.send("server is running");
 });
 
-const uri = `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@cluster0.y6v6p.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
+const uri = `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@cluster0.y6v6p.mongodb.net/ooty-db?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
@@ -23,7 +23,8 @@ async function run() {
     await client.connect();
     const database = client.db("ooty-db");
     const products_Collection = database.collection("products");
-    const cart_Collection = database.collection("cart");
+    const Order_Collection = database.collection("orders");
+    console.log('database connect');
 
     // load products get api
     app.get("/products", async (req, res) => {
@@ -45,25 +46,18 @@ async function run() {
     });
 
     // load single product get api
-    app.get("/products/:id", async (req, res) => {
+    app.get("/SingleProduct/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
       const product = await products_Collection.findOne(query);
       res.json(product);
     });
 
-    // load cart data according to user id get api
-    app.get("/cart/:uid", async (req, res) => {
-      const uid = req.params.uid;
-      const query = { uid: uid };
-      const result = await cart_Collection.find(query).toArray();
-      res.json(result);
-    });
-
-    // add data to cart collection with additional info
-    app.post("/product/add", async (req, res) => {
+    // add product 
+    app.post("/addProduct", async (req, res) => {
       const product = req.body;
-      const result = await cart_Collection.insertOne(product);
+      console.log(product);
+      const result = await products_Collection.insertOne(product);
       res.json(result);
     });
 
@@ -77,6 +71,21 @@ async function run() {
           res.send(result.modifiedCount > 0)
         })
     })
+    // add order 
+    app.post("/confirmOrder", async (req, res) => {
+      const order = req.body;
+      const result = await Order_Collection.insertOne(order);
+      res.json(result);
+    });
+
+
+    // load order data according to user id get api
+    app.get("/myOrders/:email", async (req, res) => {
+      const result = await Order_Collection.find({ email: req.params.email }).toArray();
+      console.log(result);
+      res.json(result);
+    });
+
 
     // delete data from cart delete api
     app.delete("/delete/:id", async (req, res) => {
