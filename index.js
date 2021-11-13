@@ -88,10 +88,11 @@ async function run() {
 
 
     // delete data from cart delete api
-    app.delete("/delete/:id", async (req, res) => {
+    app.delete("/deleteOrder/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
-      const result = await cart_Collection.deleteOne(query);
+      const result = await Order_Collection.deleteOne(query);
+      console.log(result);
       res.json(result);
     });
 
