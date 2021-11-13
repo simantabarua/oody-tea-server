@@ -61,14 +61,20 @@ async function run() {
       res.json(result);
     });
 
-    // update product
-    app.patch('/update/:id', (req, res) => {
-      productCollection.updateOne({ _id: ObjectId(req.params.id) },
-        {
-          $set: { price: req.body.price, quantity: req.body.quantity }
-        })
-        .then(result => {
-          res.send(result.modifiedCount > 0)
+    // update status
+    app.put('/updateStatus/:id', (req, res) => {
+      const id = req.params.id
+      const updateStatus = req.body.status;
+      const filter = { _id: ObjectId(id) };
+      console.log(updateStatus);
+      Order_Collection.updateOne(filter, {
+        $set: { status: updateStatus }
+      })
+        .then((result) => {
+          console.log(result);
+
+          res.json(result);
+
         })
     })
     // add order 
@@ -77,7 +83,6 @@ async function run() {
       const result = await Order_Collection.insertOne(order);
       res.json(result);
     });
-
 
     // load order data according to user id get api
     app.get("/myOrders/:email", async (req, res) => {
